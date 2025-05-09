@@ -1,21 +1,22 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
 import {onRequest} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
 
 export const helloFenix = onRequest((request, response) => {
-  logger.info("We are Fénix!", {structuredData: true});
-  response.send("We are Fénix!");
+if (request.method === 'POST') {
+    const message = request.body?.message; 
+
+    if (message) {
+      logger.info(`Received message: ${message}`);
+      response.status(200).send(`Fénix says: ${message}`);
+    } else {
+      logger.warn("POST request received but 'message' parameter not found in the body.");
+      response.status(400).send({ error: "Missing 'message' parameter in the request body." });
+    }
+  } else {
+    response.status(405).send({ error: "Only POST requests are supported for this function." });
+  }
+
 });
 
 interface Candidate {
